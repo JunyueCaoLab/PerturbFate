@@ -16,7 +16,7 @@ core=16 # for most steps
 samtools_core=8 # for reads filtering and sorting - this number is normally lower than the core number used in other script
 
 # define the number of UMI cutoff for splitting single cell, cells with UMIs less than this number will be discarded
-cutoff=200
+cutoff=10
 
 # define the location of index files for reads alignment with STAR
 index="/file/path/to/human_v38/hg38_STAR_index"
