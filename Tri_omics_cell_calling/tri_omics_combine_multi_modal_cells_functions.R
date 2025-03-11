@@ -245,7 +245,7 @@ sgRNA_singlets_identification_stringency <- function(sgRNA_RNA_ATAC_cocapture_df
 }
 
 ### merge multi-modal cells
-merge_Trimodal_data <- function(newRNA_obj, oldRNA_obj, new_old_link_table, ATAC_meta, sgRNA_mat, lower_sgRNA_UMI_cutoff=5, max_to_all_prop=0.4, sec_to_max_prop=0.3){
+merge_Trimodal_data <- function(newRNA_obj, oldRNA_obj, new_old_link_table, ATAC_meta, sgRNA_mat, lower_sgRNA_UMI_cutoff=5, max_to_all_prop=0.4, sec_to_max_prop=0.3, ATAC_ncount_cutoff=200, ATAC_TSSE_cutoff=1.5){
     
     ###merge new and old RNA first
     new_old_RNA_merge <- merge_nascent_preexisting_tx_Trimodal_sc(old_tx_obj = oldRNA_obj, 
@@ -259,6 +259,7 @@ merge_Trimodal_data <- function(newRNA_obj, oldRNA_obj, new_old_link_table, ATAC
     
     ###merge ATAC data
     RNA_meta <- new_old_RNA_merge$condition_table
+    ATAC_meta <- ATAC_meta %>% filter(ATAC_counts >= ATAC_ncount_cutoff & ATAC_TSSE >= ATAC_TSSE_cutoff)
     RNA_meta$concensus_cell_names <- gsub(x = RNA_meta$cell_names, pattern = "RNA_", replacement = "")
     ATAC_meta$concensus_cell_names <- gsub(x = ATAC_meta$cell_names, pattern = "ATAC_", replacement = "")
     combined_meta <- dplyr::inner_join(x = RNA_meta, y = ATAC_meta, by = "concensus_cell_names")
