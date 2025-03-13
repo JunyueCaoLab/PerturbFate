@@ -38,5 +38,4 @@ def dual_omics_ATAC_tsv_to_peak_count_mat(tsv_file_paths, batch_h5ad_out_path, f
     ###step6. export files
     dual_omics_ATAC_anndata.obs.to_csv(ATAC_meta_out_path)
     dual_omics_ATAC_anndata.write_h5ad(full_anndata_h5ad_out_path)
-)
  
