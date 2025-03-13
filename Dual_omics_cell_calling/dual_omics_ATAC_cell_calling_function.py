@@ -14,7 +14,6 @@ def dual_omics_ATAC_tsv_to_peak_count_mat(tsv_file_paths, batch_h5ad_out_path, f
                                           file=batch_h5ad_out_path,
                                           chrom_sizes=chrom_sizes, 
                                           sorted_by_barcode=False, n_jobs=cores)
-    dual_omics_ATAC.close()
     
     ###step2. load into an anndataset
     dual_omics_ATAC_anndataset = snap.AnnDataSet(adatas=list(zip(batch_names, batch_h5ad_out_path)),
