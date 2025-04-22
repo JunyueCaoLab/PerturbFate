@@ -27,7 +27,7 @@ done
 echo "Adapter trimming is done."
 
 ###2. map to the reference genome
-refdir="/rugpfs/fs0/cao_lab/scratch/zxu/tools/ATAC-pipe/Data/Ref/hg38/hg38"
+refdir="/file/path/to/hg38"
 mapping_folder="$output_folder/mapping"
 mkdir -p $mapping_folder
 
