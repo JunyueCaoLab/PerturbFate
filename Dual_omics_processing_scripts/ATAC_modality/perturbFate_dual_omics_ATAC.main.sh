@@ -10,7 +10,6 @@ core=16
 
 ###Choose the human/mouse index, GTF file, chromosome length file, snapATAC_genome_name
 index="/file/path/to/human_v38/hg38_STAR_index"
-gtf_file="/file/path/to/human_v38/gencode.v38.primary_assembly.annotation.gtf.gz"
 #the chromosome length file should be consistent with the reference we used for mapping. That's the key thing.
 chromosome_length_file='/file/path/to/human_v38/hsa_ref_chr_length.txt'
 
