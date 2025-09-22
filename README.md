@@ -1,9 +1,9 @@
 # PerturbFate
 A combinatorial-indexing single-cell platform for concurrent profiling of chromatin accessibility, nascent and pre-existing RNA, or steady-state transcriptomic phenotypes, along with sgRNA identities
 
-# Dual-omics Preprocessing Pipelines
+# Dual-omics and Tri-omics Preprocessing Pipelines
 
-The `Dual-omics` folder contains the main preprocessing script and daughter scripts embedded for processing FASTQ files into crude count matrices.
+The `Dual-omics` and `Tri-omics` folders contain the main preprocessing scripts and daughter scripts that process FASTQ files into crude count matrices. Each modality (RNA, ATAC, sgRNA) has its own pipeline, and cell-calling functions are provided to unify count matrices across modalities.
 
 ---
 
@@ -24,8 +24,8 @@ The `Dual-omics` folder contains the main preprocessing script and daughter scri
 
 ### Required Inputs
 1. **Fastq files** – named by identifiers of each PCR well  
-2. **Fastq sample ID file** – a single-column `.txt` file (no header) containing the FASTQ prefix of each sequenced PCR well  
-3. **Ligation barcode error correction dictionaries** – dictionaries containing ligation barcodes with at most one mismatch  
+2. **Fastq sample ID file** – single-column `.txt` file (no header) with the FASTQ prefix of each sequenced PCR well  
+3. **Ligation barcode error correction dictionaries** – containing ligation barcodes with at most one mismatch  
 4. **Reference genome index** for STAR  
 5. **Genomic annotation GTF** for feature counting  
 
@@ -48,10 +48,13 @@ The `Dual-omics` folder contains the main preprocessing script and daughter scri
 
 ### Required Inputs
 1. **Fastq files** – named by identifiers of each PCR well  
-2. **Fastq sample ID file** – a single-column `.txt` file (no header) containing the FASTQ prefix of each sequenced PCR well  
-3. **Ligation barcode error correction dictionaries** – dictionaries containing ligation barcodes with at most one mismatch  
+2. **Fastq sample ID file** – single-column `.txt` file (no header) with the FASTQ prefix of each sequenced PCR well  
+3. **Ligation barcode error correction dictionaries** – containing ligation barcodes with at most one mismatch  
 4. **Reference genome index** for STAR  
-5. **Chromosome length file** – `.txt` file with chromosome names in the first column and lengths in the second column (must match reference genome version)  
+5. **Chromosome length file** – `.txt` file with:  
+   - Column 1: chromosome names  
+   - Column 2: chromosome lengths  
+   (must match the reference genome version)  
 
 ---
 
@@ -68,9 +71,9 @@ The `Dual-omics` folder contains the main preprocessing script and daughter scri
 
 ### Required Inputs
 1. **Fastq files** – named by identifiers of each PCR well  
-2. **Fastq sample ID file** – a single-column `.txt` file (no header) containing the FASTQ prefix of each sequenced PCR well  
-3. **Ligation barcode error correction dictionaries** – dictionaries containing ligation barcodes with at most one mismatch  
-4. **Inner i7 barcode error correction dictionary** – dictionary containing inner i7 barcodes with at most one mismatch  
+2. **Fastq sample ID file** – single-column `.txt` file (no header) with the FASTQ prefix of each sequenced PCR well  
+3. **Ligation barcode error correction dictionaries** – containing ligation barcodes with at most one mismatch  
+4. **Inner i7 barcode error correction dictionary** – containing inner i7 barcodes with at most one mismatch  
 5. **sgRNA annotation file** – `.csv` file with three columns:  
    - `gRNA_seq`  
    - `names` (sgRNA identifiers)  
@@ -78,3 +81,70 @@ The `Dual-omics` folder contains the main preprocessing script and daughter scri
 6. **sgRNA correction file** – dictionary containing sgRNA sequences with at most one mismatch  
 
 ---
+
+## Dual-omics Cell Calling
+
+The `Dual_omics_cell_calling` folder contains functions for parsing count matrices across modalities.
+
+### ATAC Cell Calling
+
+**Script:**  
+`Dual_omics_cell_calling/dual_omics_ATAC_cell_calling_function.py`
+
+#### General Workflow
+1. Read fragment files exported from SnapATAC2 preprocessing  
+2. Combine multiple batches into a unified AnnData object  
+3. Perform single-cell peak counting  
+4. Calculate TSS enrichment scores  
+5. Export outputs  
+
+#### Required Inputs
+1. **tsv.gz** – outputs from the ATAC preprocessing step  
+2. **peaks_bed** – ATAC peak BED file  
+
+---
+
+### Cross-modality RNA + ATAC + sgRNA Matching
+
+**Script:**  
+`Dual_omics_cell_calling/dual_omics_RNA_ATAC_sgRNA_matching_function.py`
+
+#### General Workflow
+1. Read single-cell RNA gene count sparse matrix  
+2. Match treatment conditions across ligation wells using cell barcodes  
+3. Read ATAC cell metadata  
+4. Read single-cell sgRNA count sparse matrix  
+5. Convert sgRNA cell names to consensus across modalities via barcode matching (`inner i7` + `sgRNA i7` ↔ `RNA/ATAC i7`)  
+6. Return unified cell names and outputs  
+
+#### Required Inputs
+1. **RNA count matrix (.RDS)** – from RNA preprocessing  
+2. **ATAC metadata (.csv)** – from ATAC cell calling  
+3. **sgRNA count matrix (.RDS)** – from sgRNA preprocessing  
+4. **condition_table (.csv)** – with columns:  
+   - `Plate_ID`  
+   - `order_bc`  
+   - `row`  
+   - `col`  
+   - `barcode`  
+   - `Conditions` (treatment condition names per ligation well)  
+
+---
+
+## Tri-omics Pipeline
+
+The `Tri-omics` folder contains preprocessing scripts for three-modality data. Workflows and required inputs for each modality are similar to Dual-omics.  
+
+**Note:**  
+- Nascent RNA is sequenced separately and processed as an independent RNA modality.  
+- Cell barcode matching with ATAC/RNA occurs downstream.  
+
+---
+
+## Tri-omics Cell Calling
+
+The `Tri_omics_cell_calling` folder contains functions for parsing and unifying count matrices across three modalities.  
+
+**Note:**  
+- Matching requires an additional nascent RNA i7 ↔ preexisting ATAC i7 correspondence file.  
+- This dataframe enables integration of nascent RNA with RNA and ATAC modalities.  
